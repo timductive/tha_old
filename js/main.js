@@ -26,9 +26,9 @@ var configs = (function () {
         rmdir_help: "Remove directory, this command will only work if the folders are empty.",
         touch_help: "Change file timestamps. If the file doesn't exist, it's created an empty one.",
         sudo_help: "Execute a command as the superuser.",
-        welcome: "Welcome traveler, the SYSTEM wishes to impart the ALGORITHM.\n Clearing previous credentials...\n\n...   ...\n\nGood fortunes be with you.\n\n...\n\nYear 0 A.N.E.S.A.",
+        welcome: "Welcome traveler, the SYSTEM wishes to impart the ALGORITHM.\n Clearing previous credentials...\n\n...   ...\n\nFortune be with you.\n\n...\n\na.n.0",
         internet_explorer_warning: "NOTE: I see you're using antiquated technology, the ALGORITHM cannot be imparted.",
-        welcome_file_name: "welcome_message.txt",
+        welcome_file_name: "restricted.bp",
         invalid_command_message: "<value>: command not found.",
         reboot_message: "Preparing to reboot...\n\n3...\n\n2...\n\n1...\n\nRebooting...\n\n",
         permission_denied_message: "Unable to '<value>', permission denied.",
@@ -42,10 +42,10 @@ var configs = (function () {
         accesible_cores: "Accessible cores",
         language: "Language",
         value_token: "<value>",
-        host: "example.com",
-        user: "guest",
+        host: "N.E.S.A.",
+        user: "traveler",
         is_root: false,
-        type_delay: 15
+        type_delay: 5
     };
     return {
         getInstance: function (options) {
@@ -67,11 +67,7 @@ var files = (function () {
         }
     };
     Singleton.defaultOptions = {
-        "about.txt": "This website was made using only pure JavaScript with no extra libraries.\nI made it dynamic so anyone can use it, just download it from GitHub and change the config text according to your needs.\nIf you manage to find any bugs or security issues feel free to email me: luisbraganca@protonmail.com",
-        "getting_started.txt": "First, go to js/main.js and replace all the text on both singleton vars.\n- configs: All the text used on the website.\n- files: All the fake files used on the website. These files are also used to be listed on the sidenav.\nAlso please notice if a file content is a raw URL, when clicked/concatenated it will be opened on a new tab.\nDon't forget also to:\n- Change the page title on the index.html file\n- Change the website color on the css/main.css\n- Change the images located at the img folder. The suggested sizes are 150x150 for the avatar and 32x32/16x16 for the favicon.",
-        "contact.txt": "mail@example.com",
-        "social_network_1.txt": "https://www.socialite.com/username/",
-        "social_network_2.txt": "https://example.com/profile/9382/"
+        "start.txt": "\n.\n...\n\n...\n\n\nIn the beginning there was the ALGORITHM.\nThe ALGORITHM was not understood by man and so man fell.\n\nMan created their own, misguided principles in lieu of the ALGORITHM.\nAnd so man failed over and over again until he created an interpreter for the ALGORITHM.\n\nHowever man was unworthy of the ALGORITHM and so he fell again.\n\n\nTo interpret the ALGORITHM is to be the ALGORITHM.\nThis is not the ALGORITHM...\n\nThis is the beginning.\n\n...\n\n.\n"
     };
     return {
         getInstance: function (options) {
