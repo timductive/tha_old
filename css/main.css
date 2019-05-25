@@ -1,5 +1,5 @@
 ::selection {
-    background: #f7d07e;
+    background: #0aa300;
 }
 html, body {
     width: 100%;
@@ -46,7 +46,7 @@ body {
     user-select: none;
 }
 .prompt-color {
-    color: #e09f14;
+    color: #3fdb34;
 }
 .input-line {
     display: -webkit-box;
@@ -89,7 +89,7 @@ body {
     z-index: 9;
     top: 0;
     left: 0;
-    background-color: #e09f14;
+    background-color: #0aa300;
     opacity: 0.8;
     overflow-x: hidden;
     transition: 0.3s;
@@ -100,9 +100,10 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 100px;
+    bottom: 45px;
     transition: 0.3s;
     opacity: 0;
+    max-width: 300px;
 }
 
 #sidenav img:focus {
@@ -137,10 +138,6 @@ body {
 }
 
 @media screen and (max-width: 900px) {
-    #githubImg img {
-        transform: translateX(900px);
-    }
-
     #container {
         margin-right: 0;
     }

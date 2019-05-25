@@ -12,7 +12,7 @@ var configs = (function () {
         }
     };
     Singleton.defaultOptions = {
-        general_help: "Below there's a list of commands that you can use.\nYou can use autofill by pressing the TAB key, autocompleting if there's only 1 possibility, or showing you a list of possibilities.",
+        general_help: `Below there's a list of commands approved for travelers.\nYou can use autofill by pressing the TAB key.`,
         ls_help: "List information about the files and folders (the current directory by default).",
         cat_help: "Read FILE(s) content and print it to the standard output (screen).",
         whoami_help: "Print the user name associated with the current effective user ID and more info.",
@@ -26,13 +26,13 @@ var configs = (function () {
         rmdir_help: "Remove directory, this command will only work if the folders are empty.",
         touch_help: "Change file timestamps. If the file doesn't exist, it's created an empty one.",
         sudo_help: "Execute a command as the superuser.",
-        welcome: "Welcome traveler, the SYSTEM wishes to impart the ALGORITHM.\n Clearing previous credentials...\n\n...   ...\n\nFortune be with you.\n\n...\n\na.n.0",
+        welcome: welcome,
         internet_explorer_warning: "NOTE: I see you're using antiquated technology, the ALGORITHM cannot be imparted.",
         welcome_file_name: "restricted.bp",
         invalid_command_message: "<value>: command not found.",
         reboot_message: "Preparing to reboot...\n\n3...\n\n2...\n\n1...\n\nRebooting...\n\n",
         permission_denied_message: "Unable to '<value>', permission denied.",
-        sudo_message: "Unable to sudo, sudo reserved for OZs or those who walk amongst us.",
+        sudo_message: "Unable to sudo, sudo reserved for rank Oz or above.",
         usage: "Usage",
         file: "file",
         file_not_found: "File '<value>' not found.",
@@ -67,7 +67,9 @@ var files = (function () {
         }
     };
     Singleton.defaultOptions = {
-        "start.txt": "\n.\n...\n\n...\n\n\nIn the beginning there was the ALGORITHM.\nThe ALGORITHM was not understood by man and so man fell.\n\nMan created their own, misguided principles in lieu of the ALGORITHM.\nAnd so man failed over and over again until he created an interpreter for the ALGORITHM.\n\nHowever man was unworthy of the ALGORITHM and so he fell again.\n\n\nTo interpret the ALGORITHM is to be the ALGORITHM.\nThis is not the ALGORITHM...\n\nThis is the beginning.\n\n...\n\n.\n"
+        "genesis_001.txt": genesis_001,
+        "antipattern_trsof.txt": antipattern_trsof,
+        "antipattern_neque.txt": antipattern_neque
     };
     return {
         getInstance: function (options) {
@@ -237,7 +239,7 @@ var main = (function () {
             this.sidenav.style.width = "300px";
             this.sidenavElements.forEach(Terminal.makeElementAppear);
             document.getElementById("sidenavBtn").innerHTML = "&times;";
-            this.profilePic.style.opacity = 1;
+            this.profilePic.style.opacity = .7;
             this.sidenavOpen = true;
         }
         document.getElementById("sidenavBtn").blur();
@@ -356,7 +358,7 @@ var main = (function () {
     };
 
     Terminal.prototype.ls = function () {
-        var result = ".\n..\n" + configs.getInstance().welcome_file_name + "\n";
+        var result = ".\n..\n";
         for (var file in files.getInstance()) {
             result += file + "\n";
         }
@@ -368,12 +370,12 @@ var main = (function () {
     }
 
     Terminal.prototype.whoami = function (cmdComponents) {
-        var result = configs.getInstance().username + ": " + configs.getInstance().user + "\n" + configs.getInstance().hostname + ": " + configs.getInstance().host + "\n" + configs.getInstance().platform + ": " + navigator.platform + "\n" + configs.getInstance().accesible_cores + ": " + navigator.hardwareConcurrency + "\n" + configs.getInstance().language + ": " + navigator.language;
+        var result = configs.getInstance().username + ": " + configs.getInstance().user + "\n" + configs.getInstance().hostname + ": " + configs.getInstance().host + "\n" + configs.getInstance().platform + ": N.E.S.A. Super Computer" + "\n" + configs.getInstance().accesible_cores + ": " + navigator.hardwareConcurrency + "/12B" + "\n" + configs.getInstance().language + ": " + navigator.language + " derivative";
         this.type(result, this.unlock.bind(this));
     };
 
     Terminal.prototype.date = function (cmdComponents) {
-        this.type(new Date().toString(), this.unlock.bind(this));
+        this.type('Time Distortion Detected!\nRecalibrating...\n\n' + new Date().toString(), this.unlock.bind(this));
     };
 
     Terminal.prototype.help = function () {
