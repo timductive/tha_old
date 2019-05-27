@@ -69,7 +69,8 @@ var files = (function () {
     Singleton.defaultOptions = {
         "genesis_001.txt": genesis_001,
         "antipattern_trsof.txt": antipattern_trsof,
-        "antipattern_neque.txt": antipattern_neque
+        "antipattern_neque.txt": antipattern_neque,
+        "story.bp": antipattern_trsof
     };
     return {
         getInstance: function (options) {
@@ -132,7 +133,7 @@ var main = (function () {
         SUDO: { value: "sudo", help: configs.getInstance().sudo_help }
     };
 
-    var Terminal = function (prompt, cmdLine, output, sidenav, profilePic, user, host, root, outputTimer) {
+    var Terminal = function (prompt, cmdLine, output, sidenav, profilePic, user, host, root, outputTimer, flyout) {
         if (!(prompt instanceof Node) || prompt.nodeName.toUpperCase() !== "DIV") {
             throw new InvalidArgumentException("Invalid value " + prompt + " for argument 'prompt'.");
         }
@@ -144,6 +145,9 @@ var main = (function () {
         }
         if (!(sidenav instanceof Node) || sidenav.nodeName.toUpperCase() !== "DIV") {
             throw new InvalidArgumentException("Invalid value " + sidenav + " for argument 'sidenav'.");
+        }
+        if (!(flyout instanceof Node) || sidenav.nodeName.toUpperCase() !== "DIV") {
+            throw new InvalidArgumentException("Invalid value " + sidenav + " for argument 'flyout'.");
         }
         if (!(profilePic instanceof Node) || profilePic.nodeName.toUpperCase() !== "IMG") {
             throw new InvalidArgumentException("Invalid value " + profilePic + " for argument 'profilePic'.");
@@ -157,6 +161,10 @@ var main = (function () {
         this.sidenavOpen = false;
         this.sidenavElements = [];
         this.typeSimulator = new TypeSimulator(outputTimer, output);
+        this.flyout = flyout;
+        this.flyoutOpen = false;
+        this.mdConverter = new showdown.Converter();
+        this.mdConverter.setOption('simpleLineBreaks', true);
     };
 
     Terminal.prototype.type = function (text, callback) {
@@ -184,9 +192,28 @@ var main = (function () {
             }
             this.focus();
         }.bind(this));
+
+        // Setup flyout
+        document.body.addEventListener("keydown", function(event) {
+            if (event.which === 13 || event.keyCode === 13) {
+                if (this.flyoutOpen) {
+                    this.handleFlyout(event, '');
+                }
+            }
+        }.bind(this));
+        document.getElementById("flyout-escape").addEventListener("click", function(event) {
+            if (this.flyoutOpen) {
+                this.handleFlyout(event, '');
+            }
+        }.bind(this));
+    
         this.cmdLine.addEventListener("keydown", function (event) {
             if (event.which === 13 || event.keyCode === 13) {
-                this.handleCmd();
+                if (this.flyoutOpen) {
+                    this.handleFlyout(event, '');
+                } else {
+                    this.handleCmd();
+                }
                 ignoreEvent(event);
             } else if (event.which === 9 || event.keyCode === 9) {
                 this.handleFill();
@@ -217,6 +244,7 @@ var main = (function () {
             Terminal.makeElementDisappear(element);
             element.onclick = function (file, event) {
                 this.handleSidenav(event);
+
                 this.cmdLine.value = "cat " + file + " ";
                 this.handleCmd();
             }.bind(this, file);
@@ -235,6 +263,11 @@ var main = (function () {
             this.sidenav.style.width = "50px";
             document.getElementById("sidenavBtn").innerHTML = "&#9776;";
             this.sidenavOpen = false;
+
+            // Also close flyout if closing sidenav
+            if (this.flyoutOpen) {
+                this.handleFlyout(event, '');
+            }
         } else {
             this.sidenav.style.width = "300px";
             this.sidenavElements.forEach(Terminal.makeElementAppear);
@@ -244,6 +277,26 @@ var main = (function () {
         }
         document.getElementById("sidenavBtn").blur();
         ignoreEvent(event);
+    };
+
+    Terminal.prototype.handleFlyout = function (event, text) {
+        if (this.flyoutOpen) {
+            document.getElementById("flyout-content").innerHTML = '';
+            this.flyout.style.width = '0px';
+            this.flyout.style.padding = '0px';
+            this.flyoutOpen = false;   
+
+        } else {
+            document.getElementById("flyout-content").innerHTML = text;
+            this.flyout.style.padding = '60px 20px';
+            this.flyout.style.width = "100%";
+            this.flyoutOpen = true;
+        }
+        if (event) {
+            ignoreEvent(event);
+        }
+        // Re-focus and unlock terminal
+        this.unlock();
     };
 
     Terminal.prototype.lock = function () {
@@ -354,7 +407,12 @@ var main = (function () {
         } else {
             result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : files.getInstance()[cmdComponents[1]];
         }
-        this.type(result, this.unlock.bind(this));
+        // If filetype is .bp use flyout, otherwise type in terminal
+        if (cmdComponents[1].includes(".bp")) {
+            this.handleFlyout('', this.mdConverter.makeHtml(result));
+        } else {
+            this.type(result, this.unlock.bind(this));
+        }
     };
 
     Terminal.prototype.ls = function () {
@@ -476,7 +534,8 @@ var main = (function () {
                 configs.getInstance().user,
                 configs.getInstance().host,
                 configs.getInstance().is_root,
-                configs.getInstance().type_delay
+                configs.getInstance().type_delay,
+                document.getElementById("flyout")
             ).init();
         }
     };

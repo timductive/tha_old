@@ -90,7 +90,7 @@ body {
     top: 0;
     left: 0;
     background-color: #0aa300;
-    opacity: 0.8;
+    opacity: 0.95;
     overflow-x: hidden;
     transition: 0.3s;
     padding-top: 60px;
@@ -123,6 +123,30 @@ body {
 }
 #sidenav button:hover {
     color: #442e00;
+}
+
+#flyout {
+    height: 100%;
+    width: 0px;
+    position: fixed;
+    z-index: 8;
+    top: 0;
+    right: 0;
+    color: black;
+    background-color: #ffffff;
+    opacity: 1;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+}
+#flyout-content {
+    margin-left: 100px;
+    padding-bottom: 200px;
+}
+#flyout-escape {
+    margin-left: 100px;
+    position: absolute;
+    top: 20px;
 }
 
 @media screen and (max-height: 450px) {
