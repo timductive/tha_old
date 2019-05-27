@@ -9,7 +9,7 @@ Fortune be with you.
 
 ...
 
-Date: a.n.0-0 [time distortion detected]
+Date: a.r.0-0 [time distortion detected]
 
 ...
 

@@ -1,7 +1,7 @@
 const genesis_001 = `
 
 ************************* METADATA *************************
-      Date: a.n.7587-234
+      Date: a.r.7587-234
     Author: N.E.S.A.
 Annotation: Anomalous activity computed on core 7.58439.948-
             39, attention required.

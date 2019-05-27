@@ -1,7 +1,7 @@
 const antipattern_neque = `
 
 ************************* METADATA *************************
-      Date: a.n.4038-198
+      Date: a.r.4038-198
     Author: Queen
 Annotation: Anomalous antipattern discovered in humanity hi-
             storical tome. This is not the ALGORITHM.

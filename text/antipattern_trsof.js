@@ -1,7 +1,7 @@
 const antipattern_trsof = `
 
 ************************* METADATA *************************
-      Date: a.n.2961-327
+      Date: a.r.2961-327
     Author: Robert Frost
 Annotation: Anomalous antipattern discovered in humanity hi-
             storical tome. This is not the ALGORITHM.

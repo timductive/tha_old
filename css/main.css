@@ -140,7 +140,10 @@ body {
     padding-top: 60px;
 }
 #flyout-content {
-    margin-left: 100px;
+    max-width: 600px;
+    line-height: 1.5;
+    margin: auto;
+    padding: auto;
     padding-bottom: 200px;
 }
 #flyout-escape {

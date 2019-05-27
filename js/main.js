@@ -70,7 +70,7 @@ var files = (function () {
         "genesis_001.txt": genesis_001,
         "antipattern_trsof.txt": antipattern_trsof,
         "antipattern_neque.txt": antipattern_neque,
-        "story.bp": antipattern_trsof
+        "tha_001.bp": tha_001
     };
     return {
         getInstance: function (options) {
