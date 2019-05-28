@@ -78,27 +78,23 @@ var files = (function () {
     //     "tha_001.bp": tha_001
     // };
     Singleton.defaultOptions = {
-        "genesis": [
-            {"genesis_001.txt": genesis_001},
-            {"genesis_002.txt": genesis_001}
-        ],
-        "humanitas": [
-            {"tha_001.bp": tha_001},
-            {"tha_002.bp": tha_001}
-        ],
-        "addendum": [
-            {
-                "antipatterns": [
-                    {"antipattern_trsof.txt": antipattern_trsof},
-                    {"antipattern_neque.txt": antipattern_neque}
-                ]
+        "genesis": {
+            "genesis_001.txt": genesis_001,
+            "genesis_002.txt": genesis_001
+        },
+        "humanitas": {
+            "tha_001.bp": tha_001,
+            "tha_002.bp": tha_001
+        },
+        "addendum": {
+            "antipatterns": {
+                "antipattern_trsof.txt": antipattern_trsof,
+                "antipattern_neque.txt": antipattern_neque
             },
-            {
-                "anthology": [
-                    {"test": "testing\n\n\n123"}
-                ]
+            "anthology": {
+                "test": "testing\n\n\n123"
             }
-        ],
+        },
         "test.txt": antipattern_neque
     }
     return {
@@ -144,6 +140,15 @@ var main = (function () {
             temp_path.push(current_path[idx]);
         }
         return temp_path;
+    }
+
+    const getCurrentDirectory = function () {
+        var current_path = getCurrentPath();
+        var directories = files.getInstance().directories;
+        if (current_path.length > 0) {
+            directories = getNestedObject(directories, current_path);
+        } 
+        return directories
     }
     
     /**
@@ -386,7 +391,7 @@ var main = (function () {
                 if (configs.getInstance().welcome_file_name.startsWith(cmdComponents[1].toLowerCase())) {
                     possibilities.push(cmdComponents[0].toLowerCase() + " " + configs.getInstance().welcome_file_name);
                 }
-                for (var file in files.getInstance().directories) {
+                for (var file in getCurrentDirectory()) {
                     if (file.startsWith(cmdComponents[1].toLowerCase())) {
                         possibilities.push(cmdComponents[0].toLowerCase() + " " + file);
                     }
@@ -462,10 +467,10 @@ var main = (function () {
         var result;
         if (cmdComponents.length <= 1) {
             result = configs.getInstance().usage + ": " + cmds.CAT.value + " <" + configs.getInstance().file + ">";
-        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !files.getInstance().directories.hasOwnProperty(cmdComponents[1]))) {
+        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !getCurrentDirectory().hasOwnProperty(cmdComponents[1]))) {
             result = configs.getInstance().file_not_found.replace(configs.getInstance().value_token, cmdComponents[1]);
         } else {
-            result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : files.getInstance()[cmdComponents[1]];
+            result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : getCurrentDirectory()[cmdComponents[1]];
         }
         // If filetype is .bp use flyout, otherwise type in terminal
         if (cmdComponents[1] && cmdComponents[1].includes(".bp")) {
@@ -541,19 +546,10 @@ var main = (function () {
 
     Terminal.prototype.ls = function () {
         var result = ".\n..\n";
-        var current_path = getCurrentPath();
-        var directories = files.getInstance().directories;
-        if (current_path.length > 0) {
-            directories = getNestedObject(files.getInstance().directories, current_path);
-            for (var i in directories) {
-                for (var file in directories[i]) {
-                    result += file + "\n";
-                }
-            }
-        } else {
-            for (var file in directories) {
-                result += file + "\n";
-            }
+        var current_directory = getCurrentDirectory();
+
+        for (var file in current_directory) {
+            result += file + "\n";
         }
         this.type(result.trim(), this.unlock.bind(this));
     };
@@ -593,6 +589,7 @@ var main = (function () {
     Terminal.prototype.reset = function () {
         this.output.textContent = "";
         this.prompt.textContent = "";
+        files.getInstance().path = "/";
         if (this.typeSimulator) {
             this.type(configs.getInstance().welcome + (isUsingIE ? "\n" + configs.getInstance().internet_explorer_warning : ""), function () {
                 this.unlock();
