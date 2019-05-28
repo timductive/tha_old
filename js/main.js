@@ -1,4 +1,10 @@
 "use strict";
+/**
+ * https://github.com/luisbraganca/fake-terminal-website
+ * Inital author credit due to @luisbraganca for fake-terminal-website code
+ * Improvements to terminal: CD command, flyout, markdown support by @timductive
+ * THA content by @timductive
+ */
 
 /**
  * Configs
@@ -38,6 +44,7 @@ var configs = (function () {
         directory: "directory",
         file_not_found: "File '<value>' not found.",
         not_a_directory: "cd: <value>: not a directory.",
+        is_a_directory: "cat: <value>: is a directory.",
         username: "Username",
         hostname: "Host",
         platform: "Platform",
@@ -71,12 +78,6 @@ var files = (function () {
             this.directories[key] = options[key] || Singleton.defaultOptions[key];
         }
     };
-    // Singleton.defaultOptions = {
-    //     "genesis_001.txt": genesis_001,
-    //     "antipattern_trsof.txt": antipattern_trsof,
-    //     "antipattern_neque.txt": antipattern_neque,
-    //     "tha_001.bp": tha_001
-    // };
     Singleton.defaultOptions = {
         "genesis": {
             "genesis_001.txt": genesis_001,
@@ -462,13 +463,13 @@ var main = (function () {
     };
 
     Terminal.prototype.cat = function (cmdComponents) {
-        console.log("cmdComponents: " + cmdComponents);
-
         var result;
         if (cmdComponents.length <= 1) {
             result = configs.getInstance().usage + ": " + cmds.CAT.value + " <" + configs.getInstance().file + ">";
         } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !getCurrentDirectory().hasOwnProperty(cmdComponents[1]))) {
             result = configs.getInstance().file_not_found.replace(configs.getInstance().value_token, cmdComponents[1]);
+        } else if (!cmdComponents[1].includes(".rb") && !cmdComponents[1].includes(".txt")) {
+            result = configs.getInstance().is_a_directory.replace(configs.getInstance().value_token, cmdComponents[1]);
         } else {
             result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : getCurrentDirectory()[cmdComponents[1]];
         }
