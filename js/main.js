@@ -35,7 +35,9 @@ var configs = (function () {
         sudo_message: "Unable to sudo, sudo reserved for rank Oz or above.",
         usage: "Usage",
         file: "file",
+        directory: "directory",
         file_not_found: "File '<value>' not found.",
+        not_a_directory: "cd: <value>: not a directory.",
         username: "Username",
         hostname: "Host",
         platform: "Platform",
@@ -62,16 +64,43 @@ var files = (function () {
     var instance;
     var Singleton = function (options) {
         var options = options || Singleton.defaultOptions;
+
+        this.path = options['path'] || '/';
+        this.directories = {};
         for (var key in Singleton.defaultOptions) {
-            this[key] = options[key] || Singleton.defaultOptions[key];
+            this.directories[key] = options[key] || Singleton.defaultOptions[key];
         }
     };
+    // Singleton.defaultOptions = {
+    //     "genesis_001.txt": genesis_001,
+    //     "antipattern_trsof.txt": antipattern_trsof,
+    //     "antipattern_neque.txt": antipattern_neque,
+    //     "tha_001.bp": tha_001
+    // };
     Singleton.defaultOptions = {
-        "genesis_001.txt": genesis_001,
-        "antipattern_trsof.txt": antipattern_trsof,
-        "antipattern_neque.txt": antipattern_neque,
-        "tha_001.bp": tha_001
-    };
+        "genesis": [
+            {"genesis_001.txt": genesis_001},
+            {"genesis_002.txt": genesis_001}
+        ],
+        "humanitas": [
+            {"tha_001.bp": tha_001},
+            {"tha_002.bp": tha_001}
+        ],
+        "addendum": [
+            {
+                "antipatterns": [
+                    {"antipattern_trsof.txt": antipattern_trsof},
+                    {"antipattern_neque.txt": antipattern_neque}
+                ]
+            },
+            {
+                "anthology": [
+                    {"test": "testing\n\n\n123"}
+                ]
+            }
+        ],
+        "test.txt": antipattern_neque
+    }
     return {
         getInstance: function (options) {
             instance === void 0 && (instance = new Singleton(options));
@@ -85,20 +114,37 @@ var main = (function () {
     /**
      * Aux functions
      */
-    var isUsingIE = window.navigator.userAgent.indexOf("MSIE ") > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
+    const isUsingIE = window.navigator.userAgent.indexOf("MSIE ") > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
 
-    var ignoreEvent = function (event) {
+    const ignoreEvent = function (event) {
         event.preventDefault();
         event.stopPropagation();
     };
     
-    var scrollToBottom = function () {
+    const scrollToBottom = function () {
         window.scrollTo(0, document.body.scrollHeight);
     };
     
-    var isURL = function (str) {
+    const isURL = function (str) {
         return (str.startsWith("http") || str.startsWith("www")) && str.indexOf(" ") === -1 && str.indexOf("\n") === -1;
     };
+
+    const getNestedObject = (nestedObj, pathArr) => {
+        return pathArr.reduce((obj, key) =>
+            (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
+    }
+
+    const getCurrentPath = function () {
+        var temp_path = [];
+        var current_path = files.getInstance().path.split("/");
+        for (var idx in current_path) {
+            if (!current_path[idx]) {
+                continue;
+            }
+            temp_path.push(current_path[idx]);
+        }
+        return temp_path;
+    }
     
     /**
      * Model
@@ -171,8 +217,15 @@ var main = (function () {
         this.typeSimulator.type(text, callback);
     };
 
+    Terminal.prototype.updatePrompt = function () {
+        var prompt = this.completePrompt.split("~");
+        this.completePrompt = prompt[0] + "~" + files.getInstance().path + '$';
+    };
+
     Terminal.prototype.exec = function () {
         var command = this.cmdLine.value;
+        this.updatePrompt();
+    
         this.cmdLine.value = "";
         this.prompt.textContent = "";
         this.output.innerHTML += "<span class=\"prompt-color\">" + this.completePrompt + "</span> " + command + "<br/>";
@@ -239,7 +292,7 @@ var main = (function () {
                 return string.charAt(0).toUpperCase() + string.slice(1);
             }
         })();
-        for (var file in files.getInstance()) {
+        for (var file in files.getInstance().directories) {
             var element = document.createElement("button");
             Terminal.makeElementDisappear(element);
             element.onclick = function (file, event) {
@@ -310,6 +363,7 @@ var main = (function () {
 
     Terminal.prototype.unlock = function () {
         this.cmdLine.disabled = false;
+        this.updatePrompt();
         this.prompt.textContent = this.completePrompt;
         this.sidenavElements.forEach(function (elem) {
             elem.disabled = false;
@@ -320,19 +374,21 @@ var main = (function () {
 
     Terminal.prototype.handleFill = function () {
         var cmdComponents = this.cmdLine.value.trim().split(" ");
-        if ((cmdComponents.length <= 1) || (cmdComponents.length === 2 && cmdComponents[0] === cmds.CAT.value)) {
+        if ((cmdComponents.length <= 1) || 
+        ((cmdComponents.length === 2 && cmdComponents[0] === cmds.CAT.value)) || 
+        (cmdComponents.length === 2 && cmdComponents[0] === cmds.CD.value)) {
             this.lock();
             var possibilities = [];
-            if (cmdComponents[0].toLowerCase() === cmds.CAT.value) {
+            if (cmdComponents[0].toLowerCase() === cmds.CAT.value || cmdComponents[0].toLowerCase() === cmds.CD.value) {
                 if (cmdComponents.length === 1) {
                     cmdComponents[1] = "";
                 }
                 if (configs.getInstance().welcome_file_name.startsWith(cmdComponents[1].toLowerCase())) {
-                    possibilities.push(cmds.CAT.value + " " + configs.getInstance().welcome_file_name);
+                    possibilities.push(cmdComponents[0].toLowerCase() + " " + configs.getInstance().welcome_file_name);
                 }
-                for (var file in files.getInstance()) {
+                for (var file in files.getInstance().directories) {
                     if (file.startsWith(cmdComponents[1].toLowerCase())) {
-                        possibilities.push(cmds.CAT.value + " " + file);
+                        possibilities.push(cmdComponents[0].toLowerCase() + " " + file);
                     }
                 }
             } else {
@@ -383,6 +439,8 @@ var main = (function () {
                 this.reboot();
                 break;
             case cmds.CD.value:
+                this.cd(cmdComponents);
+                break;
             case cmds.MV.value:
             case cmds.RMDIR.value:
             case cmds.RM.value:
@@ -399,26 +457,103 @@ var main = (function () {
     };
 
     Terminal.prototype.cat = function (cmdComponents) {
+        console.log("cmdComponents: " + cmdComponents);
+
         var result;
         if (cmdComponents.length <= 1) {
             result = configs.getInstance().usage + ": " + cmds.CAT.value + " <" + configs.getInstance().file + ">";
-        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !files.getInstance().hasOwnProperty(cmdComponents[1]))) {
+        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !files.getInstance().directories.hasOwnProperty(cmdComponents[1]))) {
             result = configs.getInstance().file_not_found.replace(configs.getInstance().value_token, cmdComponents[1]);
         } else {
             result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : files.getInstance()[cmdComponents[1]];
         }
         // If filetype is .bp use flyout, otherwise type in terminal
-        if (cmdComponents[1].includes(".bp")) {
+        if (cmdComponents[1] && cmdComponents[1].includes(".bp")) {
             this.handleFlyout('', this.mdConverter.makeHtml(result));
         } else {
             this.type(result, this.unlock.bind(this));
         }
     };
 
+    Terminal.prototype.cd = function (cmdComponents) {
+        console.log("cmdComponents: " + cmdComponents);
+        var result = "";
+        var current_path = getCurrentPath();
+        var computed_path = "/";
+        var new_directory;
+        var input_path;
+
+        // check for valid input
+        if (!cmdComponents || cmdComponents.length <= 1 || !cmdComponents[1]) {
+            result = configs.getInstance().usage + ": " + cmds.CD.value + " <" + configs.getInstance().directory +">";
+            this.type(result.trim(), this.unlock.bind(this));
+            return;
+        }
+
+        // create new path mapping
+        input_path = cmdComponents[1].split("/");
+        for (var new_idx in input_path) {
+            if (!input_path[new_idx]) {
+                continue;
+            } 
+            else if (input_path[new_idx] == "..") {
+                try {
+                    current_path.pop();
+                } catch (error) {
+                    console.log(error);
+                    break;
+                }
+            } 
+            else if (input_path[new_idx] == ".") {
+                continue;
+            } 
+            else {
+                current_path.push(input_path[new_idx]);
+            }
+        }
+
+        if (current_path) {
+            var temp_path = [];
+            for (var idx in current_path) {
+                if (!current_path[idx]) {
+                    continue;
+                }
+                temp_path.push(current_path[idx]);
+                computed_path += current_path[idx] + "/";
+            }
+            current_path = temp_path;
+        }
+
+        // check for valid new directory, if current path, otherwise assume root directory
+        if (current_path.length > 0) {
+            new_directory = getNestedObject(files.getInstance().directories, current_path);
+            if (new_directory === undefined || (cmdComponents[1].includes(".rb") || cmdComponents[1].includes(".txt"))) {
+                result = configs.getInstance().not_a_directory.replace(configs.getInstance().value_token, cmdComponents[1]);
+                this.type(result.trim(), this.unlock.bind(this));
+                return;
+            }
+        }
+
+        // set new working directory
+        files.getInstance().path = computed_path;
+        this.unlock();
+    };
+
     Terminal.prototype.ls = function () {
         var result = ".\n..\n";
-        for (var file in files.getInstance()) {
-            result += file + "\n";
+        var current_path = getCurrentPath();
+        var directories = files.getInstance().directories;
+        if (current_path.length > 0) {
+            directories = getNestedObject(files.getInstance().directories, current_path);
+            for (var i in directories) {
+                for (var file in directories[i]) {
+                    result += file + "\n";
+                }
+            }
+        } else {
+            for (var file in directories) {
+                result += file + "\n";
+            }
         }
         this.type(result.trim(), this.unlock.bind(this));
     };
