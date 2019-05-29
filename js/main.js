@@ -129,28 +129,34 @@ var main = (function () {
     const getNestedObject = (nestedObj, pathArr) => {
         return pathArr.reduce((obj, key) =>
             (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
-    }
+    };
 
-    const getCurrentPath = function () {
-        var temp_path = [];
-        var current_path = files.getInstance().path.split("/");
-        for (var idx in current_path) {
-            if (!current_path[idx]) {
+    const cleanPath = function (path) {
+        // Takes a path as string ex "/path1/path2/etc" and
+        // returns a clean array of subdirectories/files
+        var clean_path = [];
+        var dirty_path = path.split("/");
+        for (var idx in dirty_path) {
+            if (!dirty_path[idx]) {
                 continue;
             }
-            temp_path.push(current_path[idx]);
+            clean_path.push(dirty_path[idx]);
         }
-        return temp_path;
-    }
+        return clean_path;
+    };
 
-    const getCurrentDirectory = function () {
-        var current_path = getCurrentPath();
+    const getCurrentPath = function () {
+        return cleanPath(files.getInstance().path);
+    };
+
+    const getCurrentDirectory = function (custom_path) {
+        var current_path = custom_path ||  getCurrentPath();
         var directories = files.getInstance().directories;
         if (current_path.length > 0) {
             directories = getNestedObject(directories, current_path);
         } 
         return directories
-    }
+    };
     
     /**
      * Model
@@ -256,20 +262,20 @@ var main = (function () {
         document.body.addEventListener("keydown", function(event) {
             if (event.which === 13 || event.keyCode === 13) {
                 if (this.flyoutOpen) {
-                    this.handleFlyout(event, '');
+                    this.handleFlyout(event, '', '');
                 }
             }
         }.bind(this));
         document.getElementById("flyout-escape").addEventListener("click", function(event) {
             if (this.flyoutOpen) {
-                this.handleFlyout(event, '');
+                this.handleFlyout(event, '', '');
             }
         }.bind(this));
     
         this.cmdLine.addEventListener("keydown", function (event) {
             if (event.which === 13 || event.keyCode === 13) {
                 if (this.flyoutOpen) {
-                    this.handleFlyout(event, '');
+                    this.handleFlyout(event, '', '');
                 } else {
                     this.handleCmd();
                 }
@@ -325,7 +331,7 @@ var main = (function () {
 
             // Also close flyout if closing sidenav
             if (this.flyoutOpen) {
-                this.handleFlyout(event, '');
+                this.handleFlyout(event, '', '');
             }
         } else {
             this.sidenav.style.width = "300px";
@@ -338,15 +344,23 @@ var main = (function () {
         ignoreEvent(event);
     };
 
-    Terminal.prototype.handleFlyout = function (event, text) {
+    Terminal.prototype.handleFlyout = function (event, text, title) {
         if (this.flyoutOpen) {
+            // reset flyout content and url hash
             document.getElementById("flyout-content").innerHTML = '';
+            parent.location.hash = '';
+
+            // animate css
             this.flyout.style.width = '0px';
             this.flyout.style.padding = '0px';
             this.flyoutOpen = false;   
 
         } else {
+            // Update flyout content and url hash
             document.getElementById("flyout-content").innerHTML = text;
+            parent.location.hash = title;
+
+            // animate css
             this.flyout.style.padding = '60px 20px';
             this.flyout.style.width = "100%";
             this.flyoutOpen = true;
@@ -464,25 +478,38 @@ var main = (function () {
 
     Terminal.prototype.cat = function (cmdComponents) {
         var result;
+        var path = '';
+        var file = '';
+        if (cmdComponents.length > 1 && cmdComponents[1]) {
+            file = cmdComponents[1];
+
+            if (cmdComponents[1].includes("/")) {
+                path = cleanPath(cmdComponents[1]);
+                file = path.pop();
+            }
+        }
+
         if (cmdComponents.length <= 1) {
             result = configs.getInstance().usage + ": " + cmds.CAT.value + " <" + configs.getInstance().file + ">";
-        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !getCurrentDirectory().hasOwnProperty(cmdComponents[1]))) {
-            result = configs.getInstance().file_not_found.replace(configs.getInstance().value_token, cmdComponents[1]);
-        } else if (!cmdComponents[1].includes(".rb") && !cmdComponents[1].includes(".txt")) {
-            result = configs.getInstance().is_a_directory.replace(configs.getInstance().value_token, cmdComponents[1]);
-        } else {
-            result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : getCurrentDirectory()[cmdComponents[1]];
-        }
-        // If filetype is .bp use flyout, otherwise type in terminal
-        if (cmdComponents[1] && cmdComponents[1].includes(".bp")) {
-            this.handleFlyout('', this.mdConverter.makeHtml(result));
-        } else {
             this.type(result, this.unlock.bind(this));
+        } else if (!cmdComponents[1] || (!cmdComponents[1] === configs.getInstance().welcome_file_name || !getCurrentDirectory(path).hasOwnProperty(file))) {
+            result = configs.getInstance().file_not_found.replace(configs.getInstance().value_token, cmdComponents[1]);
+            this.type(result, this.unlock.bind(this));
+        } else if (!cmdComponents[1].includes(".bp") && !cmdComponents[1].includes(".txt")) {
+            result = configs.getInstance().is_a_directory.replace(configs.getInstance().value_token, cmdComponents[1]);
+            this.type(result, this.unlock.bind(this));
+        } else {
+            result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : getCurrentDirectory(path)[file];
+            // If filetype is .bp use flyout, otherwise type in terminal
+            if (cmdComponents[1] && cmdComponents[1].includes(".bp")) {
+                this.handleFlyout('', this.mdConverter.makeHtml(result), files.getInstance().path + cmdComponents[1]);
+            } else {
+                this.type(result, this.unlock.bind(this));
+            }
         }
     };
 
     Terminal.prototype.cd = function (cmdComponents) {
-        console.log("cmdComponents: " + cmdComponents);
         var result = "";
         var current_path = getCurrentPath();
         var computed_path = "/";
@@ -539,7 +566,6 @@ var main = (function () {
                 return;
             }
         }
-
         // set new working directory
         files.getInstance().path = computed_path;
         this.unlock();
@@ -594,6 +620,13 @@ var main = (function () {
         if (this.typeSimulator) {
             this.type(configs.getInstance().welcome + (isUsingIE ? "\n" + configs.getInstance().internet_explorer_warning : ""), function () {
                 this.unlock();
+
+                // Check for existing url and open it
+                var hash = parent.location.hash.slice(1);
+                if (hash) {
+                    this.cmdLine.value = "cat " + hash + " ";
+                    this.handleCmd();
+                }
             }.bind(this));
         }
     };
