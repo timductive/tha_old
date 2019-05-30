@@ -79,10 +79,16 @@ var files = (function () {
         }
     };
     var defaultDirectories = {
+        "genesis": tags.genesis,
+        "exodus-kids": { "corrupted.txt": "/404" },
+        "elysium-trees": { "corrupted.txt": "/404" },
+        "the-humanity-algorithm": tags["the-humanity-algorithm"],
         "metadata": {
             "antipatterns": tags.antipatterns
         }
     };
+    delete tags.genesis;
+    delete tags["the-humanity-algorithm"];
     delete tags.antipatterns;
     Singleton.defaultOptions = Object.assign({}, tags, defaultDirectories);
 
@@ -493,6 +499,8 @@ var main = (function () {
                 xhttp.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         parent.handleFlyout('', this.responseText, files.getInstance().path + cmdComponents[1]);
+                    } else if (this.readyState == 4 && this.status == 404) {
+                        parent.type("ERROR: File Not Found.", parent.unlock.bind(parent));
                     }
                 };
                 xhttp.open("GET", result, true);
@@ -505,6 +513,8 @@ var main = (function () {
                 xhttp.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
                         parent.type(this.responseText, parent.unlock.bind(parent));
+                    } else if (this.readyState == 4 && this.status == 404) {
+                        parent.type("ERROR: File Not Found.", parent.unlock.bind(parent));
                     }
                 };
                 xhttp.open("GET", result, true);
