@@ -8,28 +8,24 @@
         <!--<link rel="icon" href="./img/favicon.png" type="image/x-icon" />-->
         <link href="./css/main.css" rel="stylesheet" type="text/css" />
 
-        <!-- Load all the texts -->
-        <script src="./text/welcome.js"></script>
-        <script src="./text/genesis_001.js"></script>
-        <script src="./text/antipattern_trsof.js"></script>
-        <script src="./text/antipattern_neque.js"></script>
-        <script src="./text/tha_001.js"></script>
-
         <!-- Load tag graph dynamically -->
         <script>let tags = {};</script>
         {% for tag in site.tags %}
         {% assign t = tag | first %}
         {% assign posts = tag | last %}
+        {% if t != "txt" %}
         <script>tags["{{t}}"] = {};</script>
         {% for post in posts reversed %}
         {% if post.tags contains t %}
+        {% if post.tags contains "txt" %}
+        <script>tags["{{t}}"]["{{post.title}}.txt"] = "{{post.url}}";</script>
+        {% else %}
         <script>tags["{{t}}"]["{{post.title}}.bp"] = "{{post.url}}";</script>
         {% endif %}
+        {% endif %}
         {% endfor %}
+        {% endif %}
         {% endfor %}
-
-        <!-- Load dependencies -->
-        <script src="./js/showdown.min.js"></script>
 
         <!-- Load the terminal -->
         <script src="./js/polyfills.js"></script>

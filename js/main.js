@@ -2,7 +2,7 @@
 /**
  * https://github.com/luisbraganca/fake-terminal-website
  * Inital author credit due to @luisbraganca for fake-terminal-website code
- * Improvements to terminal: CD command, flyout, markdown support, jekyll theme by @timductive
+ * Improvements to terminal: CD command, flyout, jekyll theme by @timductive
  * THA content by @timductive
  */
 
@@ -32,7 +32,7 @@ var configs = (function () {
         rmdir_help: "Remove directory, this command will only work if the folders are empty.",
         touch_help: "Change file timestamps. If the file doesn't exist, it's created an empty one.",
         sudo_help: "Execute a command as the superuser.",
-        welcome: welcome,
+        welcome: `Welcome traveler, the SYSTEM would like to impart the ALGORITHM.\n\nClearing previous credentials...\n\n.........\n\nFortune be with you.\n\n...\n\nDate: [time distortion detected]\n\n...\n\n.\n\nType "help" for interface documentation.`,
         internet_explorer_warning: "NOTE: I see you're using antiquated technology, the ALGORITHM cannot be imparted.",
         welcome_file_name: "restricted.bp",
         invalid_command_message: "<value>: command not found.",
@@ -79,20 +79,12 @@ var files = (function () {
         }
     };
     var defaultDirectories = {
-        "genesis": {
-            "genesis_001.txt": genesis_001,
-        },
-        "addendum": {
-            "antipatterns": {
-                "antipattern_trsof.txt": antipattern_trsof,
-                "antipattern_neque.txt": antipattern_neque
-            },
-            "anthology": {
-                "test": "testing\n\n\n123"
-            }
+        "metadata": {
+            "antipatterns": tags.antipatterns
         }
-    }
-    Singleton.defaultOptions = Object.assign({}, defaultDirectories, tags);
+    };
+    delete tags.antipatterns;
+    Singleton.defaultOptions = Object.assign({}, tags, defaultDirectories);
 
     return {
         getInstance: function (options) {
@@ -217,8 +209,6 @@ var main = (function () {
         this.typeSimulator = new TypeSimulator(outputTimer, output);
         this.flyout = flyout;
         this.flyoutOpen = false;
-        this.mdConverter = new showdown.Converter();
-        this.mdConverter.setOption('simpleLineBreaks', true);
     };
 
     Terminal.prototype.type = function (text, callback) {
@@ -510,7 +500,15 @@ var main = (function () {
                 
                 
             } else {
-                this.type(result, this.unlock.bind(this));
+                var xhttp = new XMLHttpRequest();
+                var parent = this;
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        parent.type(this.responseText, parent.unlock.bind(parent));
+                    }
+                };
+                xhttp.open("GET", result, true);
+                xhttp.send();
             }
         }
     };
