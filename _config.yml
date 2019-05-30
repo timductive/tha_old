@@ -1,0 +1,34 @@
+# The Humanity Algorithm Terminal by @timductive
+
+# Terminal-concept based upon work by 
+# https://github.com/luisbraganca/fake-terminal-website
+
+# Site settings
+title: The Humanity Algorithm
+email: tims@email.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Welcome traveler, the SYSTEM would like to impart the ALGORITHM.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "https://thehumanityalgorithm.com" # the base hostname & protocol for your site, e.g. http://example.com
+twitter_username: timductive
+github_username:  timductive
+
+permalink: /:title/
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+
+# Exclude from processing.
+# The following items will not be processed, by default. Create a custom list
+# to override the default setting.
+# exclude:
+#   - Gemfile
+#   - Gemfile.lock
+#   - node_modules
+#   - vendor/bundle/
+#   - vendor/cache/
+#   - vendor/gems/
+#   - vendor/ruby/

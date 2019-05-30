@@ -1,5 +1,5 @@
 const welcome = `
-Welcome traveler, the SYSTEM wishes to impart the ALGORITHM.
+Welcome traveler, the SYSTEM would like to impart the ALGORITHM.
 
 Clearing previous credentials...
 

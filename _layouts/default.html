@@ -1,0 +1,45 @@
+<html>
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The Humanity Algorithm</title>
+        <!--<link rel="icon" href="./img/favicon.png" type="image/x-icon" />-->
+        <link href="./css/main.css" rel="stylesheet" type="text/css" />
+
+        <!-- Load all the texts -->
+        <script src="./text/welcome.js"></script>
+        <script src="./text/genesis_001.js"></script>
+        <script src="./text/antipattern_trsof.js"></script>
+        <script src="./text/antipattern_neque.js"></script>
+        <script src="./text/tha_001.js"></script>
+
+        <!-- Load tag graph dynamically -->
+        <script>let tags = {};</script>
+        {% for tag in site.tags %}
+        {% assign t = tag | first %}
+        {% assign posts = tag | last %}
+        <script>tags["{{t}}"] = {};</script>
+        {% for post in posts reversed %}
+        {% if post.tags contains t %}
+        <script>tags["{{t}}"]["{{post.title}}.bp"] = "{{post.url}}";</script>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+
+        <!-- Load dependencies -->
+        <script src="./js/showdown.min.js"></script>
+
+        <!-- Load the terminal -->
+        <script src="./js/polyfills.js"></script>
+        <script src="./js/main.js"></script>
+
+    </head>
+
+    <body>
+
+        {{ content }}
+
+    </body>    
+</html>

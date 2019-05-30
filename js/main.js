@@ -2,7 +2,7 @@
 /**
  * https://github.com/luisbraganca/fake-terminal-website
  * Inital author credit due to @luisbraganca for fake-terminal-website code
- * Improvements to terminal: CD command, flyout, markdown support by @timductive
+ * Improvements to terminal: CD command, flyout, markdown support, jekyll theme by @timductive
  * THA content by @timductive
  */
 
@@ -78,14 +78,9 @@ var files = (function () {
             this.directories[key] = options[key] || Singleton.defaultOptions[key];
         }
     };
-    Singleton.defaultOptions = {
+    var defaultDirectories = {
         "genesis": {
             "genesis_001.txt": genesis_001,
-            "genesis_002.txt": genesis_001
-        },
-        "humanitas": {
-            "tha_001.bp": tha_001,
-            "tha_002.bp": tha_001
         },
         "addendum": {
             "antipatterns": {
@@ -95,9 +90,10 @@ var files = (function () {
             "anthology": {
                 "test": "testing\n\n\n123"
             }
-        },
-        "test.txt": antipattern_neque
+        }
     }
+    Singleton.defaultOptions = Object.assign({}, defaultDirectories, tags);
+
     return {
         getInstance: function (options) {
             instance === void 0 && (instance = new Singleton(options));
@@ -502,7 +498,17 @@ var main = (function () {
             result = cmdComponents[1] === configs.getInstance().welcome_file_name ? configs.getInstance().welcome : getCurrentDirectory(path)[file];
             // If filetype is .bp use flyout, otherwise type in terminal
             if (cmdComponents[1] && cmdComponents[1].includes(".bp")) {
-                this.handleFlyout('', this.mdConverter.makeHtml(result), files.getInstance().path + cmdComponents[1]);
+                var xhttp = new XMLHttpRequest();
+                var parent = this;
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        parent.handleFlyout('', this.responseText, files.getInstance().path + cmdComponents[1]);
+                    }
+                };
+                xhttp.open("GET", result, true);
+                xhttp.send();
+                
+                
             } else {
                 this.type(result, this.unlock.bind(this));
             }
