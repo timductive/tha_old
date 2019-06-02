@@ -16,6 +16,7 @@ body {
     padding: .1em 1.5em 1em 1em;
     margin-left: 50px;
     margin-right: 135px;
+    margin-top: 20px;
 }
 #cmdline {
     outline: none;
@@ -100,10 +101,10 @@ body {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 45px;
+    bottom: 30px;
     transition: 0.3s;
     opacity: 0;
-    max-width: 300px;
+    width: 300px;
 }
 
 #sidenav img:focus {
