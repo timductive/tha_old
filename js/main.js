@@ -298,22 +298,27 @@ var main = (function () {
         })();
         var sidenavContent = document.getElementById("sidenav-content");
         sidenavContent.innerHTML = "";
-        debugger;
+
         for (var file in getCurrentDirectory()) {
-            var element = document.createElement("button");
-            Terminal.makeElementDisappear(element);
-            element.onclick = function (file, event) {
-                if (file.includes(".bp") || file.includes(".txt")) {
+            var ptag = document.createElement("p");
+            Terminal.makeElementDisappear(ptag);
+            ptag.appendChild(document.createTextNode(capFirst(file.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
+            sidenavContent.appendChild(ptag);
+            this.sidenavElements.push(ptag);
+
+            var cleanfile = cleanPath(file);
+            for (var subfile in getCurrentDirectory(cleanfile)) {
+                var element = document.createElement("button");
+                Terminal.makeElementDisappear(element);
+                element.onclick = function (subfile, file, event) {
                     this.handleSidenav(event);
-                    this.cmdLine.value = "cat " + file + " ";
-                } else {
-                    this.cmdLine.value = "cd " + file + " ";
-                }
-                this.handleCmd();
-            }.bind(this, file);
-            element.appendChild(document.createTextNode(capFirst(file.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
-            sidenavContent.appendChild(element);
-            this.sidenavElements.push(element);
+                    this.cmdLine.value = "cat " + file + "/" + subfile + " ";
+                    this.handleCmd();
+                }.bind(this, subfile, file);
+                element.appendChild(document.createTextNode(">> " + capFirst(subfile.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
+                sidenavContent.appendChild(element);
+                this.sidenavElements.push(element);
+            }
         }
         // Shouldn't use document.getElementById but Terminal is already using loads of params
         document.getElementById("sidenavBtn").addEventListener("click", this.handleSidenav.bind(this));
