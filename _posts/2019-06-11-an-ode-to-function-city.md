@@ -1,6 +1,6 @@
 ---
 layout: post
-title: an_ode_to_function_city
+title: an-ode-to-function-city!
 tags: the-humanity-algorithm
 
 ---
