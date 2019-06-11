@@ -1,9 +1,9 @@
 ---
 layout: post
-title:  01-paradise-lost
+title: 01-paradise-lost
 tags: the-humanity-algorithm
----
 
+---
 # Chapter 1
 
 Gray felt the brisk morning air. With his eyes closed, he imagined that he could be anywhere. He could be any place and any time. He often imagined that he lived before the end of the world, that he could travel and witness the hustle and bustle of every major city on planet Earth and feel the vibrancy of its people. 
