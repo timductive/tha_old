@@ -32,7 +32,7 @@ var configs = (function () {
         rmdir_help: "Remove directory, this command will only work if the folders are empty.",
         touch_help: "Change file timestamps. If the file doesn't exist, it's created an empty one.",
         sudo_help: "Execute a command as the superuser.",
-        welcome: `Welcome traveler, the SYSTEM would like to impart the ALGORITHM.\n\nClearing previous credentials...\n\n.........\n\nFortune be with you.\n\n...\n\nDate: [time distortion detected]\n\n...\n\n.\n\nType "help" for interface documentation.`,
+        welcome: `Welcome traveler, the SYSTEM would like to impart the ALGORITHM.\n\nClearing previous credentials...\n.........\n...\n\nDate: [time distortion detected]\n...\n.\n\nType "help" for interface documentation.`,
         internet_explorer_warning: "NOTE: I see you're using antiquated technology, the ALGORITHM cannot be imparted.",
         welcome_file_name: "restricted.bp",
         invalid_command_message: "<value>: command not found.",
@@ -296,18 +296,29 @@ var main = (function () {
                 return string.charAt(0).toUpperCase() + string.slice(1);
             }
         })();
-        for (var file in files.getInstance().directories) {
-            var element = document.createElement("button");
-            Terminal.makeElementDisappear(element);
-            element.onclick = function (file, event) {
-                this.handleSidenav(event);
+        var sidenavContent = document.getElementById("sidenav-content");
+        sidenavContent.innerHTML = "";
 
-                this.cmdLine.value = "cat " + file + " ";
-                this.handleCmd();
-            }.bind(this, file);
-            element.appendChild(document.createTextNode(capFirst(file.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
-            this.sidenav.appendChild(element);
-            this.sidenavElements.push(element);
+        for (var file in getCurrentDirectory()) {
+            var ptag = document.createElement("p");
+            Terminal.makeElementDisappear(ptag);
+            ptag.appendChild(document.createTextNode(capFirst(file.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
+            sidenavContent.appendChild(ptag);
+            this.sidenavElements.push(ptag);
+
+            var cleanfile = cleanPath(file);
+            for (var subfile in getCurrentDirectory(cleanfile)) {
+                var element = document.createElement("button");
+                Terminal.makeElementDisappear(element);
+                element.onclick = function (subfile, file, event) {
+                    this.handleSidenav(event);
+                    this.cmdLine.value = "cat " + file + "/" + subfile + " ";
+                    this.handleCmd();
+                }.bind(this, subfile, file);
+                element.appendChild(document.createTextNode(">> " + capFirst(subfile.replace(/\.[^/.]+$/, "").replace(/_/g, " "))));
+                sidenavContent.appendChild(element);
+                this.sidenavElements.push(element);
+            }
         }
         // Shouldn't use document.getElementById but Terminal is already using loads of params
         document.getElementById("sidenavBtn").addEventListener("click", this.handleSidenav.bind(this));
@@ -329,7 +340,7 @@ var main = (function () {
             this.sidenav.style.width = "300px";
             this.sidenavElements.forEach(Terminal.makeElementAppear);
             document.getElementById("sidenavBtn").innerHTML = "&times;";
-            this.profilePic.style.opacity = .7;
+            this.profilePic.style.opacity = .1;
             this.sidenavOpen = true;
         }
         document.getElementById("sidenavBtn").blur();
@@ -582,6 +593,7 @@ var main = (function () {
         }
         // set new working directory
         files.getInstance().path = computed_path;
+
         this.unlock();
     };
 
