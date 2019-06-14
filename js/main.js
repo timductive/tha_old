@@ -105,6 +105,13 @@ var main = (function () {
     /**
      * Aux functions
      */
+    String.prototype.trimLeft = function (charlist) {
+        if (charlist === undefined)
+            charlist = "\s";
+
+        return this.replace(new RegExp("^[" + charlist + "]+"), "");
+    };
+
     const isUsingIE = window.navigator.userAgent.indexOf("MSIE ") > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
 
     const ignoreEvent = function (event) {
@@ -509,7 +516,7 @@ var main = (function () {
                 var parent = this;
                 xhttp.onreadystatechange = function () {
                     if (this.readyState == 4 && this.status == 200) {
-                        parent.handleFlyout('', this.responseText, files.getInstance().path + cmdComponents[1]);
+                        parent.handleFlyout('', this.responseText, files.getInstance().path + cmdComponents[1].trimLeft("/"));
                     } else if (this.readyState == 4 && this.status == 404) {
                         parent.type("ERROR: File Not Found.", parent.unlock.bind(parent));
                     }
