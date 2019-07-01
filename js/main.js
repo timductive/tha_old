@@ -81,7 +81,7 @@ var files = (function () {
     var defaultDirectories = {
         "genesis": tags.genesis,
         "exodus-kids": { "corrupted.txt": "/404" },
-        "elysium-trees": { "corrupted.txt": "/404" },
+        "elysium-trees": tags["elysium-trees"],
         "the-humanity-algorithm": tags["the-humanity-algorithm"],
         "metadata": {
             "antipatterns": tags.antipatterns
